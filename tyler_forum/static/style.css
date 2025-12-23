@@ -1,0 +1,8 @@
+
+.navbar-blue{
+    background: rgb(6, 81, 143)!important; 
+   
+}
+.navbar-blue  ul li i, .navbar-blue ul li a, .navbar-blue div a{
+    color: white !important;
+}

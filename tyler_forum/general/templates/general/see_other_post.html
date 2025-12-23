@@ -1,0 +1,20 @@
+{% extends 'index.html'%}
+  {% block page-content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <h5>{{user_post.0.user_id.first_name}} has posted  {{user_post|length}} blogs</h5>
+        {% for blogs in user_post%}
+            <div class="col-sm-4">
+                <div class="card">
+
+                    <h5 class="card-title ms-2 mt-3"> {{blogs.blog_title}}</h5>
+                    <div class="card-body">
+                        <p>{{blogs.blog_content}}</p>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endblock page-content %}

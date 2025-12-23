@@ -1,0 +1,156 @@
+{% extends "index.html" %}
+{% block page-head %}<title>Login</title>
+{% endblock page-head %}
+{% block page-content %}
+<div class='row justify-content-center m-5'>
+<div class='col-sm-4'>
+<div class="card">
+<div class='card-body'>
+    <form onsubmit="return false" id='login_form' class='form-horizontal'>
+        {% csrf_token %}
+        <div class='form-group'>
+             <label class='form-label' >Email </label>
+             <input type="email" value="" name='email' class='form-control'>
+        </div>
+       
+        <div class='form-group'>
+        <label class='form-label'>Password
+        
+        </label>
+        <input type="password" value="" name="password" class='form-control'>
+    </div>
+        <div class='form-group'><a class='text-primary' href="{% url "register" %}">Don't have an account ?,please click here to register</a></div>
+        <div class='form-group'><a class='text-primary' data-bs-toggle="modal" data-bs-target="#exampleModal">forgot password ?</a></div>
+        <button id='login' class='btn btn-primary mt-3'>login</button>
+    </form></div>
+    <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Reset Password</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class='form-horizontal' id='reset_form'>
+            {% csrf_token %}
+            <div class='form-group'>
+                <label class='form-label'>Email
+                </label>
+                <input type='email' class='form-control' id='email' name='email'>
+            </div>
+            <div class='form-group'><a id='timer'></a><a class='float-end text-primary' style="cursor:pointer" id='get_code' >get code</a></div>
+            <div id='security_code_response'></div>
+            <div class='form-group'>
+                <label class='form-label'>Security code
+                </label>
+                <input type='number' class='form-control' id='security_code' name='security_code'>
+            </div>
+            <div class='form-group'>
+                <label class='form-label'>New Password 
+                </label>
+                <input type='password' class='form-control' id='password' name='password'>
+            </div>
+            <div class='form-group'>
+                <label class='form-label'>Confirm New Password 
+                </label>
+                <input type='Password' class='form-control' id='cnfm_pass_code' name='confirm_password'>
+            </div>
+        </form>
+        <div id='forget_response'></div>
+      </div>
+      <div class="modal-footer">
+        <input type="hidden" name="key" value="" >
+        <button type="button" class="btn btn-primary" id="reset_password">Update </button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+    <div id='response'></div>
+</div>
+</div>
+</div>
+    {% endblock page-content %}
+{% block page-script %}
+
+<script>
+    $(document).ready(function(){
+        
+        $('#login').click(function(){
+            $.post('/api/login',$('#login_form').serialize(),function(data){
+                $("#response").html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>')
+                if(data.Message===true){
+                    setTimeout(function(){
+                        window.location.href="/api/forum"
+                    },2000)
+                    
+                }else{
+                    $('#response').html('<ul>'+data.Error+'</ul>')
+                }
+            })
+        })
+        $('#reset_password').click(function(){
+            let email=$("#email").val()
+            let password=$("#password").val()
+            let security_code=parseInt($("#security_code").val())
+            alert(typeof(security_code))
+            let cnfm_pass_code=$("#cnfm_pass_code").val()
+            let token=$("input[name='csrfmiddlewaretoken']").val()
+            $.post('/api/reset_password',{
+                email:email,
+                password:password,
+                security_code:security_code,
+                confirm_password:cnfm_pass_code,
+                csrfmiddlewaretoken:token},function(data){
+                if(data.Message==true){
+                    $('#forget_response').html("<span class='text-success'>password resetted successfully  please login</span>");
+                }else{
+                    $("#forget_response").html("<ul>"+data.Error+"</ul>");
+                }
+            });
+        });
+
+        $('#get_code').click(function(){
+            let token=$("input[name='csrfmiddlewaretoken']").val()
+            let email=$('#email').val()
+            let count=30;
+           
+            alert(email)
+            $.post('/api/getcode',{csrfmiddlewaretoken:token,email:email},function(data){
+                if(data.Message===true){
+                    
+                     let interval=setInterval(function(){
+                      count--;
+                    
+                      $('#get_code').attr('style','pointer-events:none');
+                      $('#timer').text("Resend email: "+count+"s")
+                      if(count==0){
+                        $('#get_code').removeAttr('style','');
+                        clearInterval(interval);
+                        
+                      }
+            },1000);
+                
+                $("#security_code_response").html('<span class="text-success">Email Sent,Please Check your Inbox!</span>')
+            }else{
+                $('#security_code_response').html('<span class="text-danger">'+data.Error+'</span>')
+            }
+            })
+        });
+
+    });
+</script>
+
+
+
+{% endblock page-script %}
+
+
+
+
+
+
+
+
+

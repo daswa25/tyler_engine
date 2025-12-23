@@ -1,0 +1,107 @@
+{% extends "index.html" %}
+
+
+{% block page-content %}
+
+<style>
+     body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 32px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow:0px 0px 10px 0px blue;
+    }
+</style>
+<div class="container">
+  {% include "general/header_footer/header.html" %}
+  <h1>Welcome,&nbsp;{{user_details.first_name}}</h1>
+
+<div class="board">
+    <button class="cell" id="cell1" onclick="playerMove(1, 'cell1')"></button>
+    <button class="cell" id="cell2" onclick="playerMove(2, 'cell2')"></button>
+    <button class="cell" id="cell3" onclick="playerMove(3, 'cell3')"></button>
+    <button class="cell" id="cell4" onclick="playerMove(4, 'cell4')"></button>
+    <button class="cell" id="cell5" onclick="playerMove(5, 'cell5')"></button>
+    <button class="cell" id="cell6" onclick="playerMove(6, 'cell6')"></button>
+    <button class="cell" id="cell7" onclick="playerMove(7, 'cell7')"></button>
+    <button class="cell" id="cell8" onclick="playerMove(8, 'cell8')"></button>
+    <button class="cell" id="cell9" onclick="playerMove(9, 'cell9')"></button>
+  </div>
+  <div><h3 id='resp'></h3></div></div>
+  <script>
+var playerXMoves = [];
+var playerOMoves = [];
+var currentPlayer = "X";
+
+function playerMove(num, eleId) {
+  // Add move to the correct player array
+  if (currentPlayer === "X") {
+    playerXMoves.push(num);
+    $("#" + eleId).text("X");
+  } else {
+    playerOMoves.push(num);
+    $("#" + eleId).text("O");
+  }
+
+  document.getElementById(eleId).disabled = true;
+
+  // Check win for the current player
+  if (currentPlayer === "X" && possible(playerXMoves)) {
+   
+    $("#resp").text("Player 1 (X) wins!")
+    resetGame();
+    return;
+  } else if (currentPlayer === "O" && possible(playerOMoves)) {
+    $("#resp").text("Player 2 (O) wins!")
+    resetGame();
+    return;
+  }
+
+  // Check for draw
+  if (playerXMoves.length + playerOMoves.length === 9) {
+    $("#resp").text("It's a draw!");
+    resetGame();
+    return;
+  }
+
+  // Switch turn
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+}
+
+function possible(arr) {
+  let winningCombos = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+    [1, 5, 9],
+    [3, 5, 7],
+    [7,5,3]
+  ];
+
+  return winningCombos.some(combo => combo.every(val => arr.includes(val)));
+}
+
+function resetGame() {
+  playerXMoves = [];
+  playerOMoves = [];
+  currentPlayer = "X";
+  $(".cell").text("").prop("disabled", false); // assuming cells have class 'cell'
+}
+
+  </script>
+{% endblock page-content %}

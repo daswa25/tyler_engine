@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+{% block page-content %}
+<div class="container">
+<h1>Admin</h1>
+<table class=' table table-striped'>
+    <thead>
+        <th>#</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Date created</th>
+        <th>Active/Inactive</th>
+    </thead><tbody>
+{% for users in users_info  %}
+<tr>
+<td>{{users.id}}</td>
+<td>{{users.first_name}}</td>
+<td>{{users.last_name}}</td>
+<td>{{users.email}}<hr></hr><a class='text-success'>info</a></td>
+<td>{{users.password}}<br><a class='text-danger'>Edit</a></td>
+<td>{{users.data_joined}}
+<td>{% if users.alive is not 0 %}<span class=" badge bg-success">Active</span>{% else %}<span class="badge bg-danger">in active</span>{% endif %}</td>
+</tr>
+
+{% endfor %}
+</tbody></table>
+</div>
+{% endblock page-content %}

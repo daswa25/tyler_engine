@@ -1,0 +1,280 @@
+{% extends "index.html" %}
+{% block page-content %}
+ 
+    <div class='container'>
+    
+        {% include "general/header_footer/header.html"%}
+<div class='row justify-content-center'>
+
+  {% for blog in blogs  %}
+     <div class='col-sm-5'>
+        {% if not blog %}
+         <h4 class=' text-danger'> No Posts are posted yet <h4>
+        {% endif %}
+    <div class='card mt-3'>
+      <div class='card-title ms-3 text-primary'><h5 data-bs-toggle="dropdown">{{blog.blog_title}}<i class=' bi bi-three-dots float-end me-1' ></i></h5>
+      <ul class='dropdown-menu'>
+            {% if user_id.id == blog.user_id.id %}
+        <li><a class='dropdown-item' data-bs-target='#blog-modal' data-bs-toggle='modal' id="blog-edit" onclick="editPost('{{blog.id}}','blog_title','blog_content')">Edit</a></li>
+        <li><a class='dropdown-item' data-bs-target="#blog-modal" data-bs-toggle="modal" id="blog-delete" onclick="deletePost('{{blog.id}}','blog_title','blog_content')">Delete</a></li>
+            {% else %}
+          <li><a class="dropdown-item" onclick="seeOtherPost('{{blog.user_id.id}}','{{blog.user_id.first_name}}')">See&nbsp;{{blog.user_id.first_name}}&nbsp;Posts</a></li>
+          <li><a class="dropdown-item">See&nbsp;{{blog.user_id.first_name}}&nbsp;Profile</a></li>
+             {% endif %}
+      </ul>
+      </div>
+        <hr></hr>
+        <div class='card-body'>
+            <p>{{blog.blog_content}}</p>
+        </div>
+        
+        <div class='card-footer'>
+            <a><i>Posted on&nbsp;{{blog.date_joined}}</i></a></br>
+          <a>Posted by&nbsp;{{blog.user_id.first_name}}</a>
+          <a class='float-end'>{% if blog.last_edited %}Edited {{blog.last_edited}}{% else %}Not Edited{% endif %}</a>
+        </div>
+    </div>
+      
+  </div>
+  {% endfor %}
+  <div class="row mt-3">
+    <div class='col-sm-4 '>
+      <div id='load message '>
+        <div class='card'>
+        <div class='card-header' style='color:white;background:#06518f'>Message From User 1</div>
+        <div class='card-body' style="height:250px;background:#f9f6f6 !important">
+            
+              <p style='color: orange '>[FU]Foreign User
+              <p style='color:blue'>[HU]Home User</p>
+            </div>
+        
+        <div class='card-footer'>
+          <form class='' id='messageTextForm'>
+            <div class='row mt-3'>
+            <div class='col-sm-9'><textarea class='form-control'></textarea></div>
+            <div class='col-sm-3 mt-2'><span class='btn btn-primary' onclick='sendMessage()'>Send</span></div></div></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      </div>
+  
+<div>
+    <!--BLOG MODAL-->
+  <div class="modal" tabindex="-1" id='blog-modal'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Post a blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id='form-modal' class='form-horizontal' onsubmit="return false">
+        
+
+        </form>
+           <div id='response-blog'></div>
+      </div>
+      <div class="modal-footer">
+        <div>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">cancel post</button>
+        <button type="button" class="btn btn-primary" id='postBlog'>Upload Post</button></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!--Modal Ends-->
+    <div class="modal"  id="update-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        Update Bio
+                    </div>
+                    <div class="modal-content" id="modal-content">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   <div class="modal" tabindex="-1" id='modal-search'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Search Results</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <ul class="list-group" id="response-list">
+
+        
+       </ul>          
+      </div>
+      <div class="modal-footer">
+        <div>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
+        
+
+      </div>
+    </div>
+  </div>
+    
+    <div id='response'></div></div>
+    </div>
+   
+{% endblock page-content %}
+{% block page-script %}
+<script>
+    class formsLoad
+    {
+        constructor(first_name,last_name,email_id)
+        {
+            this.first_name=first_name;
+            this.last_name=last_name;
+            this.email_id= email_id
+
+        }
+        get_form()
+        {
+          let form_storage=[this.first_name,this.last_name,this.email_id];
+          let input_type=["text","text","email"];
+          for(let i=0;i<=input_type.length;i++){
+            console.log(form_storage[i]);
+          }
+        }
+
+    }
+let load_name= new formsLoad("{{user_id.first_name}}","{{user_id.last_name}}","{{user_id.email}}");
+console.log(load_name.get_form());
+
+   function loads(){
+            let blog_form=["text",];
+            let blog_input=["Blog title"]
+
+            let blog_arr="";
+
+            let i;
+            for( i=0;i<blog_form.length;i++){
+              blog_arr+="<div class='form-group'><label class='form-label'>"+blog_input[i]+"</label><input type='"+blog_form[i]+"' class='form-control' id='blog_title'value=''></div>"
+            }
+            $("#form-modal").html(blog_arr+"<div class='form-group'><label class='form-label'>Blog Content</label><textarea class='form-control' id='blog_content'></textarea></div><input type='hidden' id='token' value={{csrf_token}}><input type='hidden' value='' id='blog_id'><input type='hidden' value='false' id='edit_it'><input type='hidden' value='false' id='delete_it'>")
+        }
+          loads();
+   
+    $(document).ready(function(){
+      
+        $('#logout').click(function(){
+            $.get('/api/logout',function(data){
+                if(data.Message){
+                    $("#response").html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>')
+                setTimeout(function(){
+                    window.location.href='/api/login'
+                },2000);
+                
+                }else{
+                    alert('Something Went Wrong');
+                }
+                
+            });
+        });
+        //ON-POST...
+
+
+          $("#postBlog").click(function(){
+            let blog_title=$("#blog_title").val();
+            let blog_content=$("#blog_content").val();
+            let csrfmiddlewaretoken=$("#token").val()
+            let blog_id=$('#blog_id').val();
+            let edit_it=$("#edit_it").val();
+            let delete_it=$("#delete_it").val();
+            $.post('/api/blog_post',{blog_title:blog_title,blog_content:blog_content,csrfmiddlewaretoken:csrfmiddlewaretoken,edit_it:edit_it,blog_id:blog_id,delete_it:delete_it},function(data){
+              $("#response-blog").html("<span class='text-success'>"+data.Message+"</span>");
+              $("#response-blog").html("<span class='text-danger'>"+data.Error+"</span>");
+            })
+          });
+      
+       
+    });
+    //ON_EDIT
+       function editPost(user_id,titleId,titleContent){
+          let token=$('#token').val();
+          $('#delete_it').val('false');
+          $('#edit_it').val('true')
+          $.get('/api/forum',{csrf_token:token,blog_id:user_id,edit:1},function(data){
+              if(data.Message===true){
+                $('#'+titleId).val(data.blog_title);
+                $('#'+titleContent).text(data.blog_content)
+                $("#postBlog").text('Edit Post')
+                $("#edit_it").val("True")
+                $("#blog_id").val(user_id)
+
+              }else{
+                $('#response-blog').html('<span class="text-danger">Something Went Wrong</span>')
+              }
+      });
+    }
+    //ON_DELETE
+    function deletePost(user_id,titleId,titleContent){
+        let token=$('#token').val();
+           $('#edit_it').val('false');
+           $('#delete_it').val('True')
+           $.get('/api/forum',{csrf_token:token,blog_id:user_id,edit:1},function(data){
+               confirm("Are You Sure you want to delete the post.");
+              if(data.Message===true){
+                $('#'+titleId).val(data.blog_title);
+                $('#'+titleContent).text(data.blog_content)
+                $("#postBlog").text('Delete Post')
+                $("#delete_it").val("True")
+                $("#blog_id").val(user_id)
+
+              }else{
+                $('#response-blog').html('<span class="text-danger">Something Went Wrong</span>')
+              }
+      });
+    }
+    function seeOtherPost(blogUserId, userFirstName) {
+        $.get('/api/see_post/' + encodeURIComponent(blogUserId), { blog_id: blogUserId },function(data) {
+            window.location.href='/api/see_post/' + encodeURIComponent(blogUserId)
+    });
+    }
+
+function searchBlog(){
+    $("#response-list").html("<div class=\"spinner-border text-primary\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div>");
+    $.post("/api/search_blog",$("#formSearch").serialize(),function(data){
+      var date,date_disp,iso_date;
+      setTimeout(()=>{
+      results=""
+      if(data.length==""){
+        results+="<li class='list-group-item'><a>No records found</a></li>"
+      }else{
+         for(var i=0;i<data.length;i++){
+          iso_date=data[i].date_joined
+          date = new Date(iso_date)
+          
+          date_disp=date.toISOString().slice(0,10);
+        results+="<li class='list-group-item'><p>"+data[i].blog_title+"</p>|<p class='text-primary'>said by "+data[i].user_last_name+"</p><p>"+date_disp+"</p><a href=''>see blog</a></li>";
+      }
+
+      }
+     
+      $("#response-list").html(results)
+      },1500)
+     
+    })
+  }
+  
+function sendMessage(pid,fid){
+  alert(pid,fid)
+
+}
+</script>
+{% endblock page-script %}
