@@ -1,58 +1,166 @@
 {% extends "index.html" %}
+{% load static %}
 {% block page-content %}
- 
+  <style>
+.message-out{
+  color: blue !important;
+  width: 150px !important;
+  height: 50px !important;
+  background: #86c7ff !important;
+  padding: 10px !important;
+  border-radius: 50px !important;
+  animation: Pop-up  1s ease-in !important;
+
+}
+/* --- 1. The Main Chat Container --- */
+#fk_msg {
+    display: flex;              /* Enables Flexbox */
+    flex-direction: column;     /* Stacks messages vertically (Top to Bottom) */
+    gap: 10px;                  /* Space between bubbles */
+    padding: 15px;
+    
+    /* Scroll settings */
+    height: 350px;              /* Fixed height on Desktop */
+    overflow-y: auto;           /* Scrollbar appears if messages overflow */
+    scroll-behavior: smooth;    /* Smooth scrolling effect */
+    
+    /* Background (Optional) */
+    background-color: #f5f5f5; 
+}
+
+/* --- 2. The Shared Bubble Style --- */
+.chat-bubble {
+    max-width: 75%;             /* Bubbles won't stretch full width */
+    padding: 10px 15px;
+    border-radius: 18px;        /* Rounded corners */
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;      /* Prevents long words from breaking layout */
+    position: relative;
+}
+
+/* --- 3. YOUR Messages (Right Side) --- */
+.hk_user {
+    align-self: flex-end;       /* Pushes bubble to the RIGHT */
+    background-color: #4CAF50;  /* Green */
+    color: white;
+    border-bottom-right-radius: 2px; /* Small corner detail */
+    text-align: left;           /* Text inside stays left-aligned (easier to read) */
+}
+
+/* --- 4. FRIEND'S Messages (Left Side) --- */
+.fk_user {
+    align-self: flex-start;     /* Pushes bubble to the LEFT */
+    background-color: #aeaeae;  /* Grey */
+    color: black;
+    border-bottom-left-radius: 2px; /* Small corner detail */
+}
+
+/* --- 5. Mobile View (The "Phone" Part) --- */
+@media screen and (max-width: 600px) {
+    /* On phone, make the chat box bigger or full width */
+    #fk_msg {
+        height: 60vh;           /* Use 60% of screen height */
+        padding: 10px;          /* Less padding on small screens */
+    }
+
+    .chat-bubble {
+        max-width: 85%;         /* Allow bubbles to be wider on phone */
+        font-size: 16px;        /* Slightly larger text for readability */
+    }
+}
+@keyframes Pop-up {
+  from {
+    top:100%;
+  }to{
+    top:0%;
+  }
+}
+.card-msg{
+  opacity:0;
+
+}
+.profile_photo{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+ </style>
     <div class='container'>
     
         {% include "general/header_footer/header.html"%}
 <div class='row justify-content-center'>
-
-  {% for blog in blogs  %}
-     <div class='col-sm-5'>
-        {% if not blog %}
-         <h4 class=' text-danger'> No Posts are posted yet <h4>
-        {% endif %}
-    <div class='card mt-3'>
-      <div class='card-title ms-3 text-primary'><h5 data-bs-toggle="dropdown">{{blog.blog_title}}<i class=' bi bi-three-dots float-end me-1' ></i></h5>
-      <ul class='dropdown-menu'>
-            {% if user_id.id == blog.user_id.id %}
-        <li><a class='dropdown-item' data-bs-target='#blog-modal' data-bs-toggle='modal' id="blog-edit" onclick="editPost('{{blog.id}}','blog_title','blog_content')">Edit</a></li>
-        <li><a class='dropdown-item' data-bs-target="#blog-modal" data-bs-toggle="modal" id="blog-delete" onclick="deletePost('{{blog.id}}','blog_title','blog_content')">Delete</a></li>
-            {% else %}
-          <li><a class="dropdown-item" onclick="seeOtherPost('{{blog.user_id.id}}','{{blog.user_id.first_name}}')">See&nbsp;{{blog.user_id.first_name}}&nbsp;Posts</a></li>
-          <li><a class="dropdown-item">See&nbsp;{{blog.user_id.first_name}}&nbsp;Profile</a></li>
-             {% endif %}
-      </ul>
+  <!--CHAT CORNER-->
+  <div class='col-sm-2'>
+    <div id='chat-block'>
+      <div class='bg-primary mt-2' style='background:#06518f !important;'><h5 class='text-white text-center'>Friends&nbsp;<i class='bi bi-globe'></i></h5>
+      <ul class="list-group" id='lst_grp'></ul>
       </div>
-        <hr></hr>
-        <div class='card-body'>
-            <p>{{blog.blog_content}}</p>
-        </div>
-        
-        <div class='card-footer'>
-            <a><i>Posted on&nbsp;{{blog.date_joined}}</i></a></br>
-          <a>Posted by&nbsp;{{blog.user_id.first_name}}</a>
-          <a class='float-end'>{% if blog.last_edited %}Edited {{blog.last_edited}}{% else %}Not Edited{% endif %}</a>
-        </div>
+
     </div>
-      
+
   </div>
-  {% endfor %}
+  <!--BLOG CENTER-->
+   <div class='col-sm-8 mt-2' style='height:550px;overflow-y:scroll;border-right: 1px solid #dee2e6;border-left:1px solid #dee2e6;'>
+  {% for blog in blogs  %}
+    
+        {% if not blog %}
+         <h4 class='text-danger'> No Posts are posted yet <h4>
+        {% endif %}
+      <div class='card mt-3'>
+        <div class='card-title ms-3 text-primary'><h5 data-bs-toggle="dropdown">{{blog.blog_title}}<i class=' bi bi-three-dots float-end me-1' ></i></h5>
+            <ul class='dropdown-menu'>
+                  {% if user_id.id == blog.user_id.id %}
+              <li><a class='dropdown-item' data-bs-target='#blog-modal' data-bs-toggle='modal' id="blog-edit" onclick="editPost('{{blog.id}}','blog_title','blog_content')">Edit</a></li>
+              <li><a class='dropdown-item' data-bs-target="#blog-modal" data-bs-toggle="modal" id="blog-delete" onclick="deletePost('{{blog.id}}','blog_title','blog_content')">Delete</a></li>
+                  {% else %}
+                <li><a class="dropdown-item" onclick="seeOtherPost('{{blog.user_id.id}}','{{blog.user_id.first_name}}')">See&nbsp;{{blog.user_id.first_name}}&nbsp;Posts</a></li>
+                <li><a class="dropdown-item">See&nbsp;{{blog.user_id.first_name}}&nbsp;Profile</a></li>
+                <li><a class="dropdown-item" id='chat' onclick="loadChat('{{blog.user_id.id}}','{{blog.user_id.first_name}}')">See&nbsp;&nbsp;Message</a></li>
+                  {% endif %}
+            </ul>
+        </div>
+              <hr>
+            <div class='card-body'>
+                <p>{{blog.blog_content}}</p>
+            </div>
+          
+            <div class='card-footer'>
+                <a><i>Posted on&nbsp;{{blog.date_joined}}</i></a><br>
+              <a>Posted by&nbsp;{{blog.user_id.first_name}}</a>
+              <a class='float-end'>{% if blog.last_edited %}Edited {{blog.last_edited}}{% else %}Not Edited{% endif %}</a>
+            </div>
+      </div>
+       {% endfor %}
+  </div>
+  <!--TOPIC AND DISCOVER-->
+  <div class='col-sm-2'></div>
+  <!---MESSAGE BLOCK-->
   <div class="row mt-3">
     <div class='col-sm-4 '>
       <div id='load message '>
-        <div class='card'>
-        <div class='card-header' style='color:white;background:#06518f'>Message From User 1</div>
-        <div class='card-body' style="height:250px;background:#f9f6f6 !important">
-            
-              <p style='color: orange '>[FU]Foreign User
-              <p style='color:blue'>[HU]Home User</p>
+        <div class='card card-msg'>
+        <div class='card-header' style='color:white;background:#06518f' id=''>
+          <div class='row'><div class='col-sm-9'><span id='image'><img src="{% static 'logo/images/coat_suit.png' %}" class='profile_photo'></span><span id='message_headbar' class='ms-2'></span></div><div class='col-sm-3'><i class='bi bi-x bi-close' style='float:right;font-size:20px;cursor:pointer' onclick="toggle()" id='close_btn'></i></div></div></div>
+        <div class='card-body' style="height:250px;background:#f9f6f6 !important;overflow-y:scroll;">
+              <div class='row'>
+                <div class='col-6'>
+                  <div id='fk_msg'>
+                </div>
+              </div>
+              <div class='col-6'>
+              <div id="hk_msg"></div>
             </div>
+          </div>
+          </div>
         
         <div class='card-footer'>
           <form class='' id='messageTextForm'>
             <div class='row mt-3'>
-            <div class='col-sm-9'><textarea class='form-control'></textarea></div>
-            <div class='col-sm-3 mt-2'><span class='btn btn-primary' onclick='sendMessage()'>Send</span></div></div></div>
+            <div class='col-sm-9'><textarea class='form-control' id='mess_1'></textarea></div>
+            <input type='hidden' id='fk_id' value=''>
+            <div class='col-sm-3 mt-2'><span class='btn btn-primary' onclick="sendMessage('mess_1')">Send</span></div></div></div>
+            {% csrf_token %}
           </form>
         </div>
       </div>
@@ -134,6 +242,7 @@
 {% endblock page-content %}
 {% block page-script %}
 <script>
+  friends_list()
     class formsLoad
     {
         constructor(first_name,last_name,email_id)
@@ -256,7 +365,7 @@ function searchBlog(){
       if(data.length==""){
         results+="<li class='list-group-item'><a>No records found</a></li>"
       }else{
-         for(var i=0;i<data.length;i++){
+        for(var i=0;i<data.length;i++){
           iso_date=data[i].date_joined
           date = new Date(iso_date)
           
@@ -264,17 +373,79 @@ function searchBlog(){
         results+="<li class='list-group-item'><p>"+data[i].blog_title+"</p>|<p class='text-primary'>said by "+data[i].user_last_name+"</p><p>"+date_disp+"</p><a href=''>see blog</a></li>";
       }
 
-      }
-     
-      $("#response-list").html(results)
-      },1500)
-     
+      } 
+      $("#response-list").html(results);},1500);
     })
   }
-  
-function sendMessage(pid,fid){
-  alert(pid,fid)
+function loadChat(id,name){
+  $(".card-msg").css({"opacity":1})
+  $(".card-msg").css({"animation":" 2s ease-in !important"})
+  $('#message_headbar').text(name);
+  var token=$("input[name='csrfmiddlewaretoken']").val();
+  $.get("/api/chatLoad",{csrfmiddlewaretoken:token,id:id,pid:{{user_id.id}}},function(response){
+    if(response.message===true){
+        var chat_list=response.data;
+        var html_fk="";
+        var html_hk="";
+        chat_list.forEach(function(chat){
+            if(chat.pid==={{user_id.id}})
+            html_hk+=`<p class="hk_user ">${chat.message}</p>`;
+            else{
+              html_fk+=`<p class="fk_user">${chat.message}</p>`
+            }
+        })
+        
 
+        $("#fk_msg").html(html_fk);
+          $("#hk_msg").html(html_hk);
+
+        $(".fk_user").addClass("chat-bubble");
+        $(".hk_user").addClass("chat-bubble")
+        $("#fk_id").val(id);
+
+    }else{
+      alert("no messages yet");
+    }
+  })
+}
+
+
+function sendMessage(message){
+    var message= $("#"+message).val();
+    $('#home_usr').text(message);
+    $(".home_user").addClass("message-out");
+    
+    var fk_id=$("#fk_id").val()
+
+    var token=$("input[name='csrfmiddlewaretoken']").val();
+    $.post("/api/chatLoad",{csrfmiddlewaretoken:token,fk_id:fk_id,message:message,id:{{user_id.id}}},function(response){
+    if(response.message===true){
+      loadChat(fk_id,"{{blog.user_id.first_name}}")
+      $("#mess_1").val("");
+    }else{
+      alert("no messages yet");
+    }
+  })
+}
+function toggle(){
+$(".card-msg").css({"opacity":0});
+}
+function friends_list(){
+  var token=$("input[name='csrfmiddlewaretoken']").val();
+  $.get('/api/chat',{csrfmiddlewaretoken:token},function(friendsList){
+    if(friendsList.message===true){
+        var friend_list=friendsList.data
+        var html="";
+        friend_list.forEach(function(friends){
+          if(friends.id!=={{user_id.id}}){
+          html+=`<li class='list-group-item'><a onclick="loadChat('${friends.id}','${friends.first_name}')" style='cursor:pointer'>${friends.first_name}<input type='hidden' value=${friends.id}></a></li>`;
+        }
+        });
+        $("#lst_grp").html(html);
+    }else{
+      $("#lst_grp").html("<p>No Users Founds </p>");
+    }
+  })
 }
 </script>
 {% endblock page-script %}

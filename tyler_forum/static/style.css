@@ -6,3 +6,14 @@
 .navbar-blue  ul li i, .navbar-blue ul li a, .navbar-blue div a{
     color: white !important;
 }
+/* Home User Animation */
+.message-out{
+ color: blue !important;
+  width: 150px !important;
+  height: 50px !important;
+  background: #86c7ff !important;
+  padding: 10px !important;
+  border-radius: 50px !important;
+  animation: ease-in !important;
+
+}

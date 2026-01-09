@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterTylerView,LoginTylerView,ForumView,LogOutView,getCodeView,forgerView,BlogPost,SeeOtherPost,games,searchPost,friendsList
+from .views import RegisterTylerView,LoginTylerView,ForumView,LogOutView,getCodeView,forgerView,BlogPost,SeeOtherPost,games,searchPost,friendsList,chatload
 
 urlpatterns=[
     path('register',RegisterTylerView.as_view(),name='register'),
@@ -12,5 +12,6 @@ urlpatterns=[
     path('blog_post',BlogPost.as_view(),name="post-blog"),
     path('see_post/<int:id>',SeeOtherPost.as_view(),name='see-other-post'),
     path('games',games.as_view(),name='games'),
-    path('chat',friendsList.as_view(),name='chat')
+    path('chat',friendsList.as_view(),name='chat'),
+    path('chatLoad',chatload.as_view(),name='load-chat')
 ]

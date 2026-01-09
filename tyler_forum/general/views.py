@@ -1,3 +1,7 @@
+from mailbox import Message
+from math import e
+from os import execv
+from sys import exception
 from django.shortcuts import render,redirect
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
@@ -6,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import login,authenticate,logout
 from .serializers import UserSerializers,ForgetPassword,PostBlog,searchBlogSerializer
-from .models import User,blog
+from .models import User,blog,messages
 from django.contrib.auth import get_user_model
 from random import randint
 from django.db.models import Q
@@ -233,7 +237,38 @@ class searchPost(APIView):
             return Response({"message":True})
 class friendsList(APIView):
     def get(self,request):
-        myFriends=User.objects.all()
-        return render(request,"general/chat.html",{"friend_details":myFriends})
+        try:
+            myFriends=User.objects.all().values('id','first_name')
+            myFriendsJson=list(myFriends)
+            return Response({"message":True,"data":myFriendsJson})
+        except User.DoesNotExist:
+            return Response({"message": False})
         
         
+class chatload(APIView):
+    def get(self, request):
+        target_id = request.GET.get('id')
+        my_id = request.GET.get('pid')
+        if not target_id or not my_id:
+            return Response({"message": False, "data": "Missing IDs"})
+        data = messages.objects.filter(
+            Q(fid=target_id, pid=my_id) | Q(fid=my_id, pid=target_id)
+        ).order_by('date_messaged').values('message', 'date_messaged', 'pid', 'fid')
+   
+
+        return Response({"message": True, "data": list(data)})
+    def post(self,request):
+        home_id=request.POST.get('id')
+        fk_id= request.POST.get('fk_id')
+        message=request.POST.get('message')
+        try:
+            UserDetails=User.objects.get(id=fk_id)
+            
+            if UserDetails:
+                message=messages.objects.create(pid=home_id,fid=UserDetails,message=message) 
+                return Response({"message":True,"data":"message delivered"})
+            else:
+                return Response({"message":False,"data":"Message not delivered"})
+                
+        except User.DoesNotExist:
+            return Response({"message":False})
