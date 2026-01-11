@@ -2,6 +2,9 @@
 {% load static %}
 {% block page-content %}
   <style>
+.pointer{
+  cursor:pointer;
+}
 .message-out{
   color: blue !important;
   width: 150px !important;
@@ -185,7 +188,14 @@
             {% if user_id.verify_email is 0 %}
                 <li><a class="dropdown-item" href="#" style="color:rgb(6, 81, 143) !important;">{{user_id.email}}<span class='badge bg-danger'>Not-verified</span></a></li>
             {% endif %}</ul></li>
-      <li class='nav-item'><a class="nav-link active" aria-current="page" href="{% url "games" %}"><i class="bi bi-controller"></i>&nbsp;Game </a></li>
+      <li class='nav-item'><a class="nav-link " aria-current="page" href="{% url "games" %}"><i class="bi bi-controller"></i>&nbsp;Game </a></li>
+      <li Class='nav-item pointer '><a class='nav-link dropdown '  data-bs-toggle="dropdown">settings</a>
+        <ul class='dropdown-menu'>
+        <li class='dropdown-item'><a> data insights</a></li>
+        <li class='dropdown-item'><a> Time Spent</a></li>
+        <li class='dropdown-item'><a>Preferences</a></li>
+      </ul></li>
+      
     </ul>
 
 
