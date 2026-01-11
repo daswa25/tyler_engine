@@ -13,7 +13,7 @@ from .serializers import UserSerializers,ForgetPassword,PostBlog,searchBlogSeria
 from .models import User,blog,messages
 from django.contrib.auth import get_user_model
 from random import randint
-from django.db.models import Q
+from django.db.models import Q,Count
 import datetime
 code=""
 def code_rand():
@@ -103,6 +103,7 @@ class LogOutView(APIView):
         sess_id=request.session['user_id']
         user_auth=User.objects.get(id=sess_id)
         user_auth.alive=0
+        user_auth.save()
         request.session.flush()
         logout(request)
         return Response({"Message":True})
@@ -238,9 +239,31 @@ class searchPost(APIView):
 class friendsList(APIView):
     def get(self,request):
         try:
-            myFriends=User.objects.all().values('id','first_name')
-            myFriendsJson=list(myFriends)
-            return Response({"message":True,"data":myFriendsJson})
+            # 1. Get all your friends
+            # (Assuming you want to see friends even if they haven't messaged you)
+            myFriends = list(User.objects.all().values('id', 'first_name', 'alive'))
+
+            # 2. Get the specific Counts
+            # Logic:
+            # - pid = request.user.id  -> "I am the Receiver"
+            # - read = 0               -> "Message is Unread"
+            # - values('fid')          -> "Group them by the Sender (Friend)"
+            chat_notifications = messages.objects.filter(
+                fid=request.user.id, 
+                read=0
+            ).values('pid').annotate(msg_count=Count('id'))
+
+            # 3. Create the Lookup Dictionary
+            # Format: { Friend_ID : Count } -> { 2: 5, 4: 1 }
+            unread_map = { item['pid']: item['msg_count'] for item in chat_notifications }
+
+            # 4. Merge the count into your friends list
+            for friend in myFriends:
+                # Check if this friend's ID exists in our unread_map
+                # If yes, add the count. If no, set it to 0.
+                friend['msg_count'] = unread_map.get(friend['id'], 0)
+
+            return Response({"message": True, "data": myFriends})
         except User.DoesNotExist:
             return Response({"message": False})
         
@@ -249,11 +272,20 @@ class chatload(APIView):
     def get(self, request):
         target_id = request.GET.get('id')
         my_id = request.GET.get('pid')
+        self_or_click=request.GET.get('selforclick')
         if not target_id or not my_id:
             return Response({"message": False, "data": "Missing IDs"})
+        if self_or_click is 1:
+            messages.objects.filter(
+                    fid=target_id, 
+                    pid=my_id, 
+                    read=0
+                ).update(read=1)
+        
         data = messages.objects.filter(
             Q(fid=target_id, pid=my_id) | Q(fid=my_id, pid=target_id)
         ).order_by('date_messaged').values('message', 'date_messaged', 'pid', 'fid')
+      
    
 
         return Response({"message": True, "data": list(data)})

@@ -12,6 +12,22 @@
   animation: Pop-up  1s ease-in !important;
 
 }
+.online-green{
+  background:lightgreen;
+  float:right !important;
+  width:10px;
+  height:10px;
+  border-radius:50px;
+  display:inline-block;
+}
+.offline-red{
+ background:#ff1515;
+  float:right !important;
+  width:10px;
+  height:10px;
+  border-radius:50px;
+  display:inline-block;
+}
 /* --- 1. The Main Chat Container --- */
 #fk_msg {
     display: flex;              /* Enables Flexbox */
@@ -134,7 +150,48 @@
        {% endfor %}
   </div>
   <!--TOPIC AND DISCOVER-->
-  <div class='col-sm-2'></div>
+  <div class='col-sm-2'>
+    <ul class='nav flex-column'>
+      <li class='nav-item'><a class="nav-link active" aria-current="page" href="{% url "forum" %}"><i class="bi bi-house"></i>&nbsp;Home</a></li>
+      <li class='nav-item dropdown '><a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-file-earmark-post"></i>&nbsp; post</a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" data-bs-toggle='modal' data-bs-target="#blog-modal" style='color:rgb(6, 81, 143) !important;'>Post a blog</a>
+                <a class="dropdown-item" style='color:rgb(6, 81, 143) !important;'>Your posts</a>
+              </li>
+            </ul></li>
+      <li class='nav-item'><a class="nav-link active" aria-current="page" href="{% url "forum" %}"><i class="bi bi-chat-dots-fill"></i>&nbsp;Chat</a></li>
+      <li class='nav-item dropdown'><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <i class="bi bi-person-circle"></i>&nbsp; Bio
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.first_name}}</a></li>
+            <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.email}}</a></li>
+              <li><a class="dropdown-item" href="" color:rgb(6, 81, 143) !important;>
+                  {% if not user_id.gender is null  %}
+
+                  <span class="bg-warning  p-1" data-bs-toggle="modal" data-bs-target="#update-modal">Update bio</span></a>
+                  {% else %}
+                    {{user_id.gender}}
+                  {% endif %}</li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><button class='btn btn-danger' id='logout'><i class='bi bi-power'></i> </button></li>
+            <li><a class="dropdown-item"><i>version:Ty-1.1</i></a></li>
+          </ul></li>
+      <li class='nav-item'>  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-check"></i>&nbsp;verification
+          </a>
+          <ul class="dropdown-menu">
+            {% if user_id.verify_email is 0 %}
+                <li><a class="dropdown-item" href="#" style="color:rgb(6, 81, 143) !important;">{{user_id.email}}<span class='badge bg-danger'>Not-verified</span></a></li>
+            {% endif %}</ul></li>
+      <li class='nav-item'><a class="nav-link active" aria-current="page" href="{% url "games" %}"><i class="bi bi-controller"></i>&nbsp;Game </a></li>
+    </ul>
+
+
+
+
+  </div>
   <!---MESSAGE BLOCK-->
   <div class="row mt-3">
     <div class='col-sm-4 '>
@@ -237,11 +294,32 @@
   </div>
     
     <div id='response'></div></div>
+     <
     </div>
    
 {% endblock page-content %}
 {% block page-script %}
 <script>
+let time = 1000; 
+const element = document.getElementById("referesh_cnt");
+
+// 2. Use 'setInterval' to make it loop
+var countdown = setInterval(function() {
+  
+  time--;
+  
+  // 3. Correct spelling is 'innerHTML'
+  // I changed '+=' to '=' so it shows the number counting down clearly
+  element.innerHTML = "Refreshing in: " + time; 
+
+  if(time == 0) {
+    // Stop the timer so it doesn't go to -1, -2, etc.
+    clearInterval(countdown);
+    window.location.href('/api/forum')
+  }
+  
+}, 1000)
+
   friends_list()
     class formsLoad
     {
@@ -377,21 +455,25 @@ function searchBlog(){
       $("#response-list").html(results);},1500);
     })
   }
-function loadChat(id,name){
+function loadChat(id,name,selforclick){
   $(".card-msg").css({"opacity":1})
   $(".card-msg").css({"animation":" 2s ease-in !important"})
   $('#message_headbar').text(name);
   var token=$("input[name='csrfmiddlewaretoken']").val();
-  $.get("/api/chatLoad",{csrfmiddlewaretoken:token,id:id,pid:{{user_id.id}}},function(response){
+  $.get("/api/chatLoad",{csrfmiddlewaretoken:token,id:id,pid:{{user_id.id}},selforclick:selforclick},function(response){
     if(response.message===true){
         var chat_list=response.data;
         var html_fk="";
         var html_hk="";
         chat_list.forEach(function(chat){
-            if(chat.pid==={{user_id.id}})
-            html_hk+=`<p class="hk_user ">${chat.message}</p>`;
+            var chatISO= chat.date_messaged;
+            var UK_date= new Date(chatISO);
+            if(chat.pid==={{user_id.id}}){
+            
+            
+            html_hk+=`<p class="hk_user ">${chat.message}</p><i>${UK_date.toDateString()}</i>`;}
             else{
-              html_fk+=`<p class="fk_user">${chat.message}</p>`
+              html_fk+=`<p class="fk_user">${chat.message}</p><i>${UK_date.toDateString()}</i>`
             }
         })
         
@@ -420,7 +502,7 @@ function sendMessage(message){
     var token=$("input[name='csrfmiddlewaretoken']").val();
     $.post("/api/chatLoad",{csrfmiddlewaretoken:token,fk_id:fk_id,message:message,id:{{user_id.id}}},function(response){
     if(response.message===true){
-      loadChat(fk_id,"{{blog.user_id.first_name}}")
+      loadChat(fk_id,"{{blog.user_id.first_name}}",'0')
       $("#mess_1").val("");
     }else{
       alert("no messages yet");
@@ -432,13 +514,25 @@ $(".card-msg").css({"opacity":0});
 }
 function friends_list(){
   var token=$("input[name='csrfmiddlewaretoken']").val();
-  $.get('/api/chat',{csrfmiddlewaretoken:token},function(friendsList){
+  $.get('/api/chat',{csrfmiddlewaretoken:token,id:{{user_id.id}}},function(friendsList){
     if(friendsList.message===true){
         var friend_list=friendsList.data
         var html="";
         friend_list.forEach(function(friends){
           if(friends.id!=={{user_id.id}}){
-          html+=`<li class='list-group-item'><a onclick="loadChat('${friends.id}','${friends.first_name}')" style='cursor:pointer'>${friends.first_name}<input type='hidden' value=${friends.id}></a></li>`;
+              dot=""
+              if(friends.alive===1){
+                dot+='online-green';
+              }else{
+                dot+='offline-red';
+              }
+              var  badgeHtml = "";
+                    if (friends.msg_count > 0) {
+                        // Added a class 'badge-counter' so you can style it red via CSS
+                        badgeHtml = `<sup class=" badge  text-bg-danger" title='${friends.msg_count} Unread messages'>${friends.msg_count}</sup>`;
+                    }
+          html+=`<li class='list-group-item'><a onclick="loadChat('${friends.id}','${friends.first_name}','1')" style='cursor:pointer;' id='list_notf_${friends.id}'>${friends.first_name}<input type='hidden' value=${friends.id}><span class='${dot}'></span>
+          ${badgeHtml}</a></li>`;
         }
         });
         $("#lst_grp").html(html);

@@ -11,58 +11,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url "forum" %}"><i class="bi bi-house"></i></a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-file-earmark-post"></i></a>
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" data-bs-toggle='modal' data-bs-target="#blog-modal" style='color:rgb(6, 81, 143) !important;'>Post a blog</a>
-                <a class="dropdown-item" style='color:rgb(6, 81, 143) !important;'>Your posts</a>
-              </li>
-            </ul>
-        </li>
-         <li class="nav-item">
-          <a class="nav-link" href="#"><i class="bi bi-chat-dots-fill"></i></a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-           <i class="bi bi-person-circle"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.first_name}}</a></li>
-            <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.email}}</a></li>
-              <li><a class="dropdown-item" href="" color:rgb(6, 81, 143) !important;>
-                  {% if not user_id.gender is null  %}
-
-                  <span class="bg-warning  p-1" data-bs-toggle="modal" data-bs-target="#update-modal">Update bio</span></a>
-                  {% else %}
-                    {{user_id.gender}}
-                  {% endif %}</li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><button class='btn btn-danger' id='logout'><i class='bi bi-power'></i> </button></li>
-            <li><a class="dropdown-item"><i>version:Ty-1.1</i></a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown">
-             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-check"></i>
-          </a>
-          <ul class="dropdown-menu">
-            {% if user_id.verify_email is 0 %}
-                <li><a class="dropdown-item" href="#" style="color:rgb(6, 81, 143) !important;">{{user_id.email}}<span class='badge bg-danger'>Not-verified</span></a></li>
-            {% endif %}</ul>
-        </li>
-           <li class="nav-item dropdown">
-             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class='bi bi-controller'></i>
-          </a>
-          <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url "games" %}" style="color:rgb(6, 81, 143) !important;">Tic&nbsp;tac&nbsp;toe</a></li>
-            </ul>
-        </li>
-
+       <li class='nav-item'><a class='nav-link' >Data&nbsp;Science</a></li>
+       <li class='nav-item'><a class='nav-link' >Space&nbsp;talk</a></li>
+       <li class='nav-item'><a id='referesh_cnt' class='nav-link'></a></li>
       </ul>
       <form class="d-flex" role="search" onsubmit="return false" id='formSearch'>
          
@@ -70,6 +21,8 @@
         <button class="btn btn-success"  onclick='searchBlog()'  data-bs-target="#modal-search" data-bs-toggle="modal">Search</button>
          {% csrf_token %}
       </form>
+      <div><a style="cursor:pointer;" href="{% url "forum" %}"><i class="bi bi-arrow-clockwise"></i></a></div>
     </div>
   </div>
 </nav>
+
