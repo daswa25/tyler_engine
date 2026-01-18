@@ -1,10 +1,44 @@
-
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+body{
+  font-family: 'Montserrat',sans-serif  !important;
+  color: red !important;
+}
 .navbar-blue{
     background: rgb(6, 81, 143)!important; 
    
 }
 .navbar-blue  ul li i, .navbar-blue ul li a, .navbar-blue div a{
     color: white !important;
+}
+.login-center{
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  height: 100vh;
+}
+/* Add this class to your main login card div */
+.glass-card {
+    background: rgba(255, 255, 255, 0.15)  !important;
+    backdrop-filter: blur(15px) !important;
+    height: 40vh;
+    position: static;
+   
+}
+.glass-input {
+  background: rgba(255, 255, 255, 0.15)  !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid #252653;
+
+}
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+    /* Delays the color change for 50000 seconds */
+    transition: background-color 50000s ease-in-out 0s;
+    
+    /* Force text color to white (or your desired color) */
+    -webkit-text-fill-color: #252653  !important;  
 }
 /* Home User Animation */
 .message-out{

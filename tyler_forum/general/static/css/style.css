@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap');
+body{
+  font-family: 'Space Grotesk',sans-serif  !important;
+  background-image: url('../logo/images/loginBoat.jpg');
+  background-position: center center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.card-layouts{
+  background: rgb(255, 252, 252) !important;
+  opacity: 88% !important;
+  height:60vh ;
+ 
+  
+}

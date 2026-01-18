@@ -138,3 +138,9 @@ EMAIL_HOST_USER = 'durdendas@gmail.com'
 EMAIL_HOST_PASSWORD = 'pkstbnuuubrevchf'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+# Temporary debug code in settings.py
+print("--- DEBUG STATIC PATHS ---")
+for path in STATICFILES_DIRS:
+    print(f"Checking: {path}")
+    print(f"Exists? : {path.exists()}")
+print("--------------------------")

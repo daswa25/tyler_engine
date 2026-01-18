@@ -170,13 +170,8 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.first_name}}</a></li>
             <li><a class="dropdown-item" href="#" style='color:rgb(6, 81, 143) !important;'>{{user_id.email}}</a></li>
-              <li><a class="dropdown-item" href="" color:rgb(6, 81, 143) !important;>
-                  {% if not user_id.gender is null  %}
-
-                  <span class="bg-warning  p-1" data-bs-toggle="modal" data-bs-target="#update-modal">Update bio</span></a>
-                  {% else %}
-                    {{user_id.gender}}
-                  {% endif %}</li>
+              <li><a class="dropdown-item " data-bs-toggle="modal" data-bs-target="#updateBio"  onclick="loadFormModal(1,1);"> <span class='btn btn-primary' type='button'>Update Bio</span></a>
+                  
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#"><button class='btn btn-danger' id='logout'><i class='bi bi-power'></i> </button></li>
             <li><a class="dropdown-item"><i>version:Ty-1.1</i></a></li>
@@ -197,10 +192,6 @@
       </ul></li>
       
     </ul>
-
-
-
-
   </div>
   <!---MESSAGE BLOCK-->
   <div class="row mt-3">
@@ -281,7 +272,7 @@
             </div>
         </div>
     </div>
-   <div class="modal" tabindex="-1" id='modal-search'>
+  <div class="modal" tabindex="-1" id='modal-search'>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -304,11 +295,33 @@
   </div>
     
     <div id='response'></div></div>
-     <
+     
+      </div>
+    <!--UPDATE BIO-->
+    <div class="modal fade" id="updateBio" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id='update-bio'>
+        
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="editFormLoad(1)">Edit</button>
+        <button type="button" class="btn btn-primary" onclick="editFormLoad(2)">Save changes</button>
+        
+      </div>
     </div>
-   
+  </div>
+</div>
+ 
 {% endblock page-content %}
 {% block page-script %}
+
+<script src="{% static 'js/dasbuild.js'%}"></script>
 <script>
 let time = 1000; 
 const element = document.getElementById("referesh_cnt");
@@ -550,6 +563,62 @@ function friends_list(){
       $("#lst_grp").html("<p>No Users Founds </p>");
     }
   })
+}
+function loadFormModal(flag,notEdit){
+  let token= $("input[name='csrfmiddlewaretoken']").val();
+  if(flag==1){
+    $.get('/api/bio',{id:{{user_id.id}},csrfmiddlewaretoken:token},function(data){
+    if(data.message===true){
+      console.log(data.data);
+        var response = data.data; 
+        var types = data.types;   
+        var myFields = Object.keys(response).map(key => {
+          console.log(response[key]);
+        return {
+              id: key,
+              name: key,
+              label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+              value: response[key],
+              type: types ? types[key] : 'text' 
+          };
+      });
+    const builder = new FormsBuild('user-bio-form', myFields,notEdit);
+    document.getElementById('update-bio').innerHTML = builder.generate();
+      
+      }
+    else{
+      alert("something went wrong");
+    }
+    });
+
+  }
+}
+function editFormLoad(flag){
+  if(flag==1){
+      $("#update-bio").html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>');
+  setTimeout(()=>{
+     loadFormModal(1,0);
+  },2000);
+  }
+  else if(flag==2){
+  let token= $("input[name='csrfmiddlewaretoken']").val();
+  let email=$("#email").val();
+  let first_name=$("#first_name").val();
+  let last_name=$("#last_name").val();
+  let gender=$("#gender").val();
+  $.post('/api/bio',{csrfmiddlewaretoken:token,email:email,first_name:first_name,last_name:last_name,gender:gender,id:{{user_id.id}}},
+  function(response){
+    if(response.message==true){
+      $("#output-bio").html(`<p class='alert alert-success'>${response.data}</p>`);
+    }else{
+      $("#output-bio").html(`<p class='alert alert-success'>${response.message}</p>`);
+    }
+
+  }); 
+
+  }else{
+  console.log("something went wrong");
+ }
 }
 </script>
 {% endblock page-script %}

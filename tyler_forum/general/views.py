@@ -2,6 +2,7 @@ from mailbox import Message
 from math import e
 from os import execv
 from sys import exception
+from django.forms import model_to_dict
 from django.shortcuts import render,redirect
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
@@ -14,6 +15,7 @@ from .models import User,blog,messages
 from django.contrib.auth import get_user_model
 from random import randint
 from django.db.models import Q,Count
+from django.forms.models import model_to_dict
 import datetime
 code=""
 def code_rand():
@@ -304,3 +306,52 @@ class chatload(APIView):
                 
         except User.DoesNotExist:
             return Response({"message":False})
+        
+class UpdateBio(APIView):
+    def get(self,request):
+        user_id=request.GET.get('id')
+        
+        try:
+            user_detail=User.objects.get(id=user_id)
+            target_fields = ['first_name', 'last_name', 'email', 'gender', 'date_joined']
+            response_data=model_to_dict(user_detail,target_fields)
+            response_data_type={}
+            for field_name in target_fields:
+                field_obj=User._meta.get_field(field_name)
+                internal_type=field_obj.get_internal_type()
+                if internal_type in ['CharField', 'TextField']:
+                    response_data_type[field_name] = 'text'
+                elif internal_type == 'EmailField':
+                    response_data_type[field_name] = 'email'
+                elif internal_type in ['IntegerField', 'AutoField']:
+                    response_data_type[field_name] = 'number'
+                elif internal_type == 'BooleanField':
+                    response_data_type[field_name] = 'checkbox'
+                elif internal_type in ['DateField', 'DateTimeField']:
+                    response_data_type[field_name] = 'date'
+                else:
+                    response_data_type[field_name] = 'text'
+            return Response({"message":True,"data":response_data,"type":response_data_type})
+            
+        except User.DoesNotExist:
+            return Response({"message":"Error"})
+    def post(self,request):
+        user_id=request.POST.get('id')
+        email=request.POST.get('email')
+        first_name=request.POST.get('first_name')
+        last_name=request.POST.get('last_name')
+        gender=request.POST.get('gender')
+        try:
+            user_details=User.objects.get(id=user_id)
+            if user_details:
+                user_details.email=email
+                user_details.first_name=first_name
+                user_details.last_name=last_name
+                user_details.gender=gender
+                user_details.save()
+                return Response({"message":True,"data":"success,updated"})
+                    
+            
+             
+        except User.DoesNotExist:
+            return Response({"message":"user does not exist"})
