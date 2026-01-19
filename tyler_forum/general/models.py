@@ -1,7 +1,9 @@
+import uuid
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+import os
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None, security_code=0, verify_email=0,gender=None):
@@ -37,6 +39,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=35)
     date_joined = models.DateTimeField(default=timezone.now)
     security_code = models.IntegerField(default=0)
+    profile_img= models.ImageField(default='default.jpg',upload_to='profile_pics')
+    post_media=models.ImageField(default='',upload_to='media-picture')
     gender=models.CharField(max_length=50,null=True)
     verify_email = models.IntegerField(default=0)
     status = models.IntegerField(default=0)
@@ -72,4 +76,14 @@ class messages(models.Model):
         last_date_messaged=models.DateTimeField(blank=True,null=True)
         read=models.IntegerField(default=0)
         message=models.CharField(max_length=255)
+def unique_image_name(instance,filename):
+    ext=filename.split('.')[-1]
+    newfilename=f"{uuid.uuid4()}.{ext}"
+    return os.path.join('profile_pics',newfilename)
+    
+class profileImage(models.Model):
+    data_uploaded=models.DateTimeField(default=timezone.now)
+    Users=models.ForeignKey('User',on_delete=models.CASCADE)
+    img_name=models.CharField(max_length=255)
+    profile_img= models.ImageField(default='default.jpg',upload_to=unique_image_name)
         

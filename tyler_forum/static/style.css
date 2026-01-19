@@ -51,3 +51,28 @@ body{
   animation: ease-in !important;
 
 }
+.collapse-menu{
+  display: none;
+}
+.collapse-sm-nav{
+  display: block;
+}
+ @media (max-width:768px) {
+  .collapse-menu{
+    display: block;
+  }
+  .collapse-sm-nav{
+    display: none;
+  }
+ }
+ #crop-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;  /* Initial size of crop */
+    height: 200px; /* Square for profile pic */
+    border: 2px solid white;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); /* Dims the outside area */
+    cursor: move;
+    z-index: 10;
+}

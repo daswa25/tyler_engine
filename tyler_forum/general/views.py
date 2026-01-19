@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import login,authenticate,logout
 from .serializers import UserSerializers,ForgetPassword,PostBlog,searchBlogSerializer
-from .models import User,blog,messages
+from .models import User,blog,messages,profileImage
 from django.contrib.auth import get_user_model
 from random import randint
 from django.db.models import Q,Count
@@ -88,11 +88,14 @@ class ForumView(APIView):
                     blogs= blog.objects.get(pk=blog_id)
                     blog_title=blogs.blog_title
                     blog_content=blogs.blog_content
-                    return Response({"blog_title":blog_title,"blog_content":blog_content,"Message":True})
+                    
+                    
+                    return Response({"blog_title":blog_title,"blog_content":blog_content,"Message":True,"urlImage":last_image.profile_img.url})
                 else:
                     user_details = User.objects.get(id=sess_id)
                     blogs=blog.objects.order_by('-date_joined')
-                    return render(request, "general/dashboard.html", {"user_id": user_details,"blogs":blogs})
+                    last_image = profileImage.objects.filter(Users=request.user).latest('data_uploaded')
+                    return render(request, "general/dashboard.html", {"user_id": user_details,"blogs":blogs,"urls":last_image})
             except User.DoesNotExist:
             # user not found, redirect to login
                 return redirect("/api/login")
@@ -355,3 +358,23 @@ class UpdateBio(APIView):
              
         except User.DoesNotExist:
             return Response({"message":"user does not exist"})
+class imageUpload(APIView):
+        def get(self,request):
+            id=request.GET.get('id')
+            try:
+                last_image = profileImage.objects.filter(Users=request.user).latest('data_uploaded')
+                
+                return Response({"message":True,"dataURL":last_image.profile_img.url})
+            except User.DoesNotExist:
+                return Response({"message":False})
+        def post(self,request):
+            image_file=request.FILES.get('image')
+            if not image_file:
+                return Response({"message": False, "error": "No image provided"})
+            try:
+                profile,create=profileImage.objects.get_or_create(Users=request.user)
+                profile.profile_img=image_file
+                profile.save()
+                return Response({"message":True,"newurl":profile.profile_img.url})
+            except Exception as e:
+                return Response({"message":False,"error":str(e)})
