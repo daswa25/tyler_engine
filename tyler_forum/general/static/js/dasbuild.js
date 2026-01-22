@@ -16,16 +16,12 @@ class FormsBuild{
             var edit=this.edit;
             var edited=""
             if(edit==1){
-                 edited=`readonly="true" title="You can't edit "`;
+                edited=`readonly="true" title="You can't edit "`;
             }else{
                 edited=" title='Now you can edit'";
-            }
-            
-         
+            } 
             this.listForm.forEach(field => {
                 formTemplate += `<div class="form-group">`;
-                
-               
                 if (field.label) {
                     formTemplate += `<label for="${field.id}">${field.label}</label>`;
                 }
@@ -76,9 +72,7 @@ function uploadImg(){
     console.log(imageFile.files);
     if(imageFile.files && imageFile.files[0]){
         var files = imageFile.files[0];
-       
-        var fileRead= new FileReader()
-       
+        var fileRead= new FileReader();
         // PRE-VIEW
         fileRead.onload=(e)=>{
             var base64= e.target.result;
@@ -235,4 +229,17 @@ function cropIt(flag,id){
 
 
     }
+
+}
+    function getProfilePic(userId){
+    var id=userId;
+    var token = $("input[name='csrfmiddlewaretoken']").val();
+    $.get('/api/upload_profilepic',{id:id,csrfmiddlewaretoken:token},function(response){
+        if(response.message==true){
+            console.log(response.dataURL);
+            $("#preview").attr('src',response.dataURL);
+        }else{
+            alert("something went wrong");
+        }
+    });
 }

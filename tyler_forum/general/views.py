@@ -243,9 +243,9 @@ class searchPost(APIView):
             return Response({"message":True})
 class friendsList(APIView):
     def get(self,request):
+        flag= request.GET.get('flag')
+        
         try:
-            # 1. Get all your friends
-            # (Assuming you want to see friends even if they haven't messaged you)
             myFriends = list(User.objects.all().values('id', 'first_name', 'alive'))
 
             # 2. Get the specific Counts
@@ -257,18 +257,16 @@ class friendsList(APIView):
                 fid=request.user.id, 
                 read=0
             ).values('pid').annotate(msg_count=Count('id'))
-
-            # 3. Create the Lookup Dictionary
-            # Format: { Friend_ID : Count } -> { 2: 5, 4: 1 }
             unread_map = { item['pid']: item['msg_count'] for item in chat_notifications }
 
-            # 4. Merge the count into your friends list
+           
             for friend in myFriends:
-                # Check if this friend's ID exists in our unread_map
-                # If yes, add the count. If no, set it to 0.
+               
                 friend['msg_count'] = unread_map.get(friend['id'], 0)
-
-            return Response({"message": True, "data": myFriends})
+            # if str(flag).lower() in ['1','true']:
+            #     return Response({"message": True, "data": myFriends})
+            # else:
+                return render(request,'general/chat.html',{"friends":myFriends})
         except User.DoesNotExist:
             return Response({"message": False})
         

@@ -1,112 +1,20 @@
 {%extends "index.html" %}
-
+{% load static %}
 {% block page-content %}
-<style>
 
-.bg-tr-li{
-    background: rgb(6, 81, 143);
-    color:white !important;
- 
-}
-.bg-tr-li a{
-    color:white !important;
-    text-decoration:none;
-    text-align:center
-}
-
-</style>
 <div class='container'>
-{% include "general/header_footer/header.html" %}
-<style>
-  .roll-up{
-        animation:up 2s ease-in;
-    }
-@keyframes up{
-    0% {
-        height: 0px;
-
-    }
-    100%{
-        height: 500px;
-    }
-}
-.cont-500:hover{
-    box-shadow: 0px 0px 5px 0px grey;
-}
-.cont-500{
-    border-right: 1px solid #dee2e6 !important;
-    border-bottom:1px solid #dee2e6 !important;
-    border-left: 1px solid #dee2e6 !important;
-    border-top: 1px solid rgb(6, 81, 143)
-}
-
-</style>
-<div class='row'>
-    <div class='col-sm-4'>
-        <div class='mt-2'>
-            
-            <ul class='list-group'>
-                <li class='list-group-item bg-tr-li'><a class='bg-tr-blue'>Chat with your friends</a></li>
-                {% for friends in friend_details  %}
-
-                     <li class='list-group-item' onclick="loadFriend('{{friends.id}}','{{friends.first_name}}')"><span>{{friends.first_name}}</span>&nbsp;|&nbsp;<span class='text-success'>Active</span></li>
-                {% endfor %}
-
-               
-
-            </ul></div>
-
-    </div>
-    <div class='col-sm-8'>
-        <div class='cont-500 mt-2' style='max-heigh:500px;height:500px;overflow-y:scroll; position:relative;border-radius :10px;'>
-            <div class='bg-primary text-white text-center p-2 chat-head' style='background:rgb(6, 81, 143) !important' id='chat-head'></div>
-            <!--USER (YOU)-->
-                    <div class='row'>
-                        <div class='col-sm-6'>
-                            <div>
-                        <div class='bg-secondary text-white p-3 ms-3 mt-3' style='width:fit-content'>Hey User</div>
-                    </div>
-                </div>
-                <div class='col-sm-6'>
-                    <div class='position-absolute bottom-0  end-0 m-4'>
-                        <div class='bg-primary text-white p-3 ms-3 mt-3' style='width:fit-content'>Hola lorem ispum </div>
-                        <div class='bg-primary text-white p-3 ms-3 mt-1' style='width:fit-content'>Hola lorem ispum </div>
-                    </div>
-                </div>
-          </div>
+    {% include "general/header_footer/header.html" %}
+    <div class='row'>
+        <div class='col-sm-4'>
+            <h3>Your friends</h3>
+        </div><div class='col-sm-8'>
+    <div class='card'>
+        <div class='card-title'></div>
+        <div class='card-body'>
+            <div class=''><h3>direct message</h3></div>
         </div>
-        <div class='mt-3'>
-        <textarea class='form-control' name='message' id='mess_1'></textarea>
-        <button class='btn btn-primary mt-1'  onclick="send_message(mess_1)">Send Message</button></div>
-    </div>
-        
-    
-            <!--USER (FK)-->
-        
-        
- 
-
-    </div>
+    </div></div>
 </div>
-
 </div>
-<script>
-    $(".cont-500").css("height","0px")
-    function loadFriend(fid,fname){
-        $(".cont-500").css("height","500px");
-        // load On every refresh
-        $(".cont-500").addClass("roll-up");
-        $("#chat-head").html("<span class='text-white'>"+fname+"</span>");
-      
-    
-
-    }
-
-    function send_message(message){
-       let msg= $("#"+message).val();
-       alert(msg);
-
-    }
-</script>
-
+<script src="{% static 'js/dasbuild.js' %}"></script>
 {% endblock page-content%}

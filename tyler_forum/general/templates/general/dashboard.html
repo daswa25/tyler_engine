@@ -163,7 +163,7 @@
                 <a class="dropdown-item" style='color:rgb(6, 81, 143) !important;'>Your posts</a>
               </li>
             </ul></li>
-      <li class='nav-item'><a class="nav-link active" aria-current="page" href="{% url "forum" %}"><i class="bi bi-chat-dots-fill"></i>&nbsp;Chat</a></li>
+      <li class='nav-item'><a class="nav-link active" aria-current="page"  href="{% url 'chat' %}"><i class="bi bi-chat-dots-fill"></i>&nbsp;Chat</a></li>
       <li class='nav-item dropdown'><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
            <i class="bi bi-person-circle"></i>&nbsp; Bio
           </a>
@@ -318,63 +318,7 @@
   </div>
 </div>
 <!--IMG MODAL-->
-<div class="modal fade" id="preview-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-
-
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" aria-current="page" data-bs-target="#org_img" data-bs-toggle='tab' id='raw_img'>Uploaded Image&nbsp;</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-bs-target="#crop_img" data-bs-toggle='tab'> Crop Image </a>
-      </li>
-     
-    </ul>
-        <div class='tab-content'>
-          <div id='org_img' class='tab-pane active'>
-            <div id='max-width'>
-
-            </div>
-          </div>
-          <div id='crop_img' class='tab-pane '>
-            <div id ='custom-crop-area' style='display:none;text-align-center'>
-              <div style='position:relative;display:inline-block;overflow:hidden;'>
-                <img id="target-img" style="max-width: 500px; display: block;" draggable="false">
-                <div id='crop-box'></div>
-                
-              </div>
-              <img id='profile-picture'>
-            </div>
-            
-            <button class="btn btn-primary mt-2" onclick="cropIt(1,{{user_id.id}})">Cut & Upload</button>
-            <canvas id="hidden-canvas" style="display:none;"></canvas>
-            
-          </div>
-        </div>
-
-
-        
-        
-          <div class='mt-3 '><button class='btn btn-secondary d-flex ms-auto me-auto' onclick="$('#hidden_img').click()">
-            <span class=''>Upload a new image </span>
-          </button>
-         
-          <input type='file' id='hidden_img' style='display:none;' onchange='uploadImg()'>
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
+{% include "general/modal.html" %}
 
  
 {% endblock page-content %}
@@ -679,19 +623,14 @@ function editFormLoad(flag){
   console.log("something went wrong");
  }
 }
-function getProfilePic(userId){
-    id=userId;
-    var token=$("input[name=csrfmiddlewaretoken]").val();
-    $.get('/api/upload_profilepic',{id:id,csrfmiddlewaretoken:token},function(response){
-        if(response.message==true){
-            console.log(response.dataURL);
-            $("#preview").attr('src',response.dataURL);
-        }else{
-            alert("something went wrong");
-        }
-    });
-}
 
+//function chat(pid){
+    //if(pid==0){
+      //window.location.href=`api/chat`;
+    //}
+    //ELSE
+ 
+//}
 
 getProfilePic("{{user_id.id}}");
 </script>
